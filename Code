@@ -4,7 +4,9 @@ import gamebox
 camera = gamebox.Camera(800, 600)
 game_on = False
 
-borders = [gamebox.from_color(400, 575, "green", 800, 50), gamebox.from_color(400, 20, "black", 800, 40)]
+borders = [gamebox.from_color(400, 20, "black", 8000, 40),
+           gamebox.from_color(400, 575, "green", 800, 50),
+           gamebox.from_color(1300, 575, "green", 800, 50)]
 
 
 mario = gamebox.from_color(100, 530, "red", 30, 40)
