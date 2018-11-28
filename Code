@@ -33,6 +33,8 @@ def tick(keys):
     if mario.x > position:
         camera.center = [mario.x, 300]
         position = mario.x
+     if mario.x < position - 400:
+        mario.x = position - 400
 
     for border in borders:
         camera.draw(border)
