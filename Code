@@ -9,10 +9,11 @@ borders = [gamebox.from_color(400, 575, "green", 800, 50), gamebox.from_color(40
 
 mario = gamebox.from_color(100, 530, "red", 30, 40)
 mario.speedx = 0
-
+position = 400
 def tick(keys):
 
     global game_on
+    global position
     camera.clear("lightblue")
     if not game_on:
         camera.draw(gamebox.from_text(300, 100, "Press space to start", 40, "Red"))
@@ -27,6 +28,11 @@ def tick(keys):
         if pygame.K_UP in keys:
             mario.speedy = -10
     mario.move_speed()
+    
+    # Screen Movement
+    if mario.x > position:
+        camera.center = [mario.x, 300]
+        position = mario.x
 
     for border in borders:
         camera.draw(border)
