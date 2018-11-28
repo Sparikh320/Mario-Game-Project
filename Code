@@ -19,14 +19,17 @@ def tick(keys):
         camera.draw(gamebox.from_text(300, 100, "Press space to start", 40, "Red"))
     if pygame.K_SPACE in keys:
         game_on = True
+        
+# player movement
     if game_on:
-        #Player movement
+        if pygame.K_UP in keys:
+            for border in borders:# Mario can only jump up if he is not in the air already
+                if mario.touches(border):
+                    mario.speedy = -20
         if pygame.K_RIGHT in keys:
             mario.x += 10
         if pygame.K_LEFT in keys:
             mario.x += -10
-        if pygame.K_UP in keys:
-            mario.speedy = -10
     mario.move_speed()
     
     # Screen Movement
@@ -38,6 +41,10 @@ def tick(keys):
 
     for border in borders:
         camera.draw(border)
+        if not mario.touches(border):
+            mario.speedy += 0.75 #whenever mario is in the air he gains downward velocity
+        else:
+            mario.speedy = -0.75
 
     camera.draw(mario)
     camera.display()
