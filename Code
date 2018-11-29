@@ -6,7 +6,8 @@ game_on = False
 
 borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(400, 575, "green", 800, 50),
-           gamebox.from_color(1300, 575, "green", 800, 50)]
+           gamebox.from_color(1300, 575, "green", 800, 50),
+           gamebox.from_color(500, 450, "brown", 50, 50)]
 
 
 mario = gamebox.from_color(100, 530, "red", 30, 40)
@@ -46,7 +47,8 @@ def tick(keys):
         if not mario.touches(border):
             mario.speedy += 0.75 #whenever mario is in the air he gains downward velocity
         else:
-            mario.speedy = -0.75
+            # mario.speedy = -0.75
+            mario.move_to_stop_overlapping(border)
 
     camera.draw(mario)
     camera.display()
