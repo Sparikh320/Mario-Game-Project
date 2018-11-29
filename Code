@@ -20,7 +20,11 @@ def tick(keys):
     global position
     camera.clear("lightblue")
     if not game_on:
-        camera.draw(gamebox.from_text(300, 100, "Press space to start", 40, "Red"))
+        camera.draw(gamebox.from_text(400, 100, "Mario", 50, "Red"))
+        camera.draw(gamebox.from_text(400, 140, "By Anthony Esquivel(afe2xd) and Sahil Parikh(sp4qf)", 40, "Black"))
+        camera.draw(gamebox.from_text(400, 200, "Use arrow keys to move and jump", 40, "Black"))
+        camera.draw(gamebox.from_text(400, 240, "Avoid enemies and traps and make it to the end", 40, "Black"))
+        camera.draw(gamebox.from_text(400, 350, "Press space to start", 40, "Red"))
     if pygame.K_SPACE in keys:
         game_on = True
         
