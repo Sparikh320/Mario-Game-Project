@@ -1,12 +1,16 @@
+
 # Anthony Esquivel afe2xd, Sahil Parikh sp4qf
 import pygame
 import gamebox
+
 camera = gamebox.Camera(800, 600)
 game_on = False
 goomba_dead = False
 koopa_down = False
 koopa_dead = False
 health = 3
+koopa_x = 700
+koopa_y = 530
 
 borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(400, 575, "green", 800, 50),
@@ -18,21 +22,25 @@ borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(1200, 450, "brown", 150, 50),
            gamebox.from_color(1400, 350, "brown", 100, 50)]
 
-goomba = gamebox.from_color(30, 30, "brown", -500, 500)
-koopa_standing = gamebox.from_color(30, 50, "green", -500, 500)
-koopa_spinning = gamebox.from_color(30, 20, "green", -500, 500)
+goomba = gamebox.from_color(300, 530, "brown", 30, 30)
+koopa_standing = gamebox.from_color(koopa_x, koopa_y, "green", 50, 20)
+koopa_spinning = gamebox.from_color(koopa_x, koopa_y, "green", 30, 20)
 traps = [gamebox.from_color(650, 530, "grey", 50, 40)]
 
 mario = gamebox.from_color(100, 530, "red", 30, 40)
 mario.speedx = 0
 position = 400
-def tick(keys):
 
+
+def tick(keys):
     global game_on
     global position
     global goomba_dead
     global koopa_down
     global koopa_dead
+    global health
+    global koopa_x
+    global koopa_y
     camera.clear("lightblue")
     if not game_on:
         camera.draw(gamebox.from_text(400, 100, "Mario", 50, "Red"))
@@ -42,40 +50,40 @@ def tick(keys):
         camera.draw(gamebox.from_text(400, 350, "Press space to start", 40, "Red"))
     if pygame.K_SPACE in keys:
         game_on = True
-        
-# player movement
+
+    # player movement
     if game_on:
         if pygame.K_UP in keys:
-            for border in borders:# Mario can only jump up if he is not in the air already
+            for border in borders:  # Mario can only jump up if he is not in the air already
                 if mario.touches(border):
-                    mario.speedy = -20
+                    mario.speedy = -40
         if pygame.K_RIGHT in keys:
             mario.x += 10
         if pygame.K_LEFT in keys:
             mario.x += -10
     mario.move_speed()
-    
+
     # Screen Movement
     if mario.x > position:
         camera.center = [mario.x, 300]
         position = mario.x
-     if mario.x < position - 400:
+    if mario.x < position - 400:
         mario.x = position - 400
 
     for border in borders:
         camera.draw(border)
-        if not mario.touches(border):
-            mario.speedy += 0.75 #whenever mario is in the air he gains downward velocity
+        if not mario.bottom_touches(border):
+            mario.speedy += 0.75  # whenever mario is in the air he gains downward velocity
         else:
-            # mario.speedy = -0.75
+            mario.speedy = 0
             mario.move_to_stop_overlapping(border)
-    
+
     if mario.bottom_touches(goomba):
-         goomba_dead = True
+        goomba_dead = True
     if mario.bottom_touches(koopa_standing):
-         koopa_down = True
+        koopa_down = True
     if mario.bottom_touches(koopa_spinning):
-         koopa_dead = True
+        koopa_dead = True
 
     if mario.left_touches(goomba) or mario.right_touches(goomba):
         health -= 1
@@ -83,17 +91,24 @@ def tick(keys):
         health -= 1
     if mario.left_touches(koopa_spinning) or mario.right_touches(koopa_spinning):
         health -= 1
-    
+
     for trap in traps:
         camera.draw(trap)
     if mario.bottom_touches(goomba):
-         goomba_dead = True
+        goomba_dead = True
     if mario.bottom_touches(koopa_standing):
         koopa_down = True
     if mario.bottom_touches(koopa_spinning):
         koopa_dead = True
 
     camera.draw(mario)
+    if not goomba_dead:
+        camera.draw(goomba)
+    if not koopa_dead:
+        if not koopa_down:
+            camera.draw(koopa_standing)
+        else:
+            camera.draw(koopa_spinning)
     camera.display()
 
 
