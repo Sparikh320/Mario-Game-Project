@@ -70,6 +70,20 @@ def tick(keys):
             # mario.speedy = -0.75
             mario.move_to_stop_overlapping(border)
     
+    if mario.bottom_touches(goomba):
+         goomba_dead = True
+    if mario.bottom_touches(koopa_standing):
+         koopa_down = True
+    if mario.bottom_touches(koopa_spinning):
+         koopa_dead = True
+
+    if mario.left_touches(goomba) or mario.right_touches(goomba):
+        health -= 1
+    if mario.left_touches(koopa_standing) or mario.right_touches(koopa_standing):
+        health -= 1
+    if mario.left_touches(koopa_spinning) or mario.right_touches(koopa_spinning):
+        health -= 1
+    
     for trap in traps:
         camera.draw(trap)
     if mario.bottom_touches(goomba):
