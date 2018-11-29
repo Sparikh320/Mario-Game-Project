@@ -3,6 +3,10 @@ import pygame
 import gamebox
 camera = gamebox.Camera(800, 600)
 game_on = False
+goomba_dead = False
+koopa_down = False
+koopa_dead = False
+health = 3
 
 borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(400, 575, "green", 800, 50),
@@ -14,6 +18,9 @@ borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(1200, 450, "brown", 150, 50),
            gamebox.from_color(1400, 350, "brown", 100, 50)]
 
+goomba = gamebox.from_color(30, 30, "brown", -500, 500)
+koopa_standing = gamebox.from_color(30, 50, "green", -500, 500)
+koopa_spinning = gamebox.from_color(30, 20, "green", -500, 500)
 traps = [gamebox.from_color(650, 530, "grey", 50, 40)]
 
 mario = gamebox.from_color(100, 530, "red", 30, 40)
@@ -23,6 +30,9 @@ def tick(keys):
 
     global game_on
     global position
+    global goomba_dead
+    global koopa_down
+    global koopa_dead
     camera.clear("lightblue")
     if not game_on:
         camera.draw(gamebox.from_text(400, 100, "Mario", 50, "Red"))
@@ -62,6 +72,12 @@ def tick(keys):
     
     for trap in traps:
         camera.draw(trap)
+    if mario.bottom_touches(goomba):
+         goomba_dead = True
+    if mario.bottom_touches(koopa_standing):
+        koopa_down = True
+    if mario.bottom_touches(koopa_spinning):
+        koopa_dead = True
 
     camera.draw(mario)
     camera.display()
