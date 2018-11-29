@@ -13,8 +13,8 @@ koopa_x = 700
 koopa_y = 530
 
 borders = [gamebox.from_color(400, 20, "black", 8000, 40),
-           gamebox.from_color(400, 575, "green", 800, 50),
-           gamebox.from_color(1300, 575, "green", 800, 50),
+           gamebox.from_color(400, 875, "green", 800, 650),
+           gamebox.from_color(1300, 875, "green", 800, 650),
            gamebox.from_color(500, 450, "brown", 50, 50),
            gamebox.from_color(650, 350, "brown", 50, 50),
            gamebox.from_color(900, 250, "brown", 100, 50),
@@ -22,15 +22,32 @@ borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(1200, 450, "brown", 150, 50),
            gamebox.from_color(1400, 350, "brown", 100, 50)]
 
-goomba = gamebox.from_color(300, 530, "brown", 30, 30)
-koopa_standing = gamebox.from_color(koopa_x, koopa_y, "green", 50, 20)
-koopa_spinning = gamebox.from_color(koopa_x, koopa_y, "green", 30, 20)
+goomba = gamebox.from_color(30, 30, "brown", -500, 500)
+koopa_standing = gamebox.from_color(30, 50, "green", -500, 500)
+koopa_spinning = gamebox.from_color(30, 20, "green", -500, 500)
 traps = [gamebox.from_color(650, 530, "grey", 50, 40)]
 
 mario = gamebox.from_color(100, 530, "red", 30, 40)
 mario.speedx = 0
 position = 400
+past_save = False
 
+def dead():
+    global health
+    global past_save
+    global position
+    if health <= 1:
+        camera.draw(gamebox.from_text(400, 200, "Game over", 40, "Red"))
+        camera.center = [400, 300]
+        #gamebox.pause()
+    elif past_save:
+        camera.center = [2000, 300]
+    else:
+        camera.center = [400, 300]
+        mario.x = 100
+        mario.y = 530
+    health -= 1
+    position = 400
 
 def tick(keys):
     global game_on
@@ -41,6 +58,7 @@ def tick(keys):
     global health
     global koopa_x
     global koopa_y
+    global past_save
     camera.clear("lightblue")
     if not game_on:
         camera.draw(gamebox.from_text(400, 100, "Mario", 50, "Red"))
@@ -62,7 +80,12 @@ def tick(keys):
         if pygame.K_LEFT in keys:
             mario.x += -10
     mario.move_speed()
-
+    
+    # Save Point
+    if mario.x > 2000: # Arbitrary x value needs to be changed
+          past_save = True
+        # Insert counter here to stop from iterating every tick?
+        
     # Screen Movement
     if mario.x > position:
         camera.center = [mario.x, 300]
@@ -75,7 +98,7 @@ def tick(keys):
         if not mario.bottom_touches(border):
             mario.speedy += 0.75  # whenever mario is in the air he gains downward velocity
         else:
-            mario.speedy = 0
+            #mario.speedy = 0
             mario.move_to_stop_overlapping(border)
 
     if mario.bottom_touches(goomba):
@@ -85,12 +108,15 @@ def tick(keys):
     if mario.bottom_touches(koopa_spinning):
         koopa_dead = True
 
+    # Mario dies
+    if mario.y > 800:
+        dead()
     if mario.left_touches(goomba) or mario.right_touches(goomba):
-        health -= 1
+        dead()
     if mario.left_touches(koopa_standing) or mario.right_touches(koopa_standing):
-        health -= 1
+        dead()
     if mario.left_touches(koopa_spinning) or mario.right_touches(koopa_spinning):
-        health -= 1
+        dead()
 
     for trap in traps:
         camera.draw(trap)
