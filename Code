@@ -165,6 +165,7 @@ def tick(keys):
     if mario.y > 800:
         dead()
     if goomba.top_touches(mario):
+        mario.move_to_stop_overlapping(goomba)
         goomba.y = -200
         goomba_dead = True
     elif mario.left_touches(goomba) or mario.right_touches(goomba):
@@ -204,7 +205,5 @@ def tick(keys):
             camera.draw(koopa_spinning)
     camera.display()
 
-
-gamebox.timer_loop(30, tick)
 
 gamebox.timer_loop(30, tick)
