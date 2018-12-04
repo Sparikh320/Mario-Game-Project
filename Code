@@ -1,4 +1,3 @@
-
 # Anthony Esquivel afe2xd, Sahil Parikh sp4qf
 import pygame
 import gamebox
@@ -111,14 +110,18 @@ def tick(keys):
     if mario.y > 800:
         dead()
     if goomba.top_touches(mario):
+        goomba.y = -200
         goomba_dead = True
     elif mario.left_touches(goomba) or mario.right_touches(goomba):
         dead()
     if koopa_standing.top_touches(mario):
+        mario.move_to_stop_overlapping(koopa_standing)
+        koopa_standing.x += 10
         koopa_down = True
     elif mario.left_touches(koopa_standing) or mario.right_touches(koopa_standing):
         dead()
     if koopa_standing.top_touches(mario):
+        koopa_spinning.y = -200
         koopa_dead = True
     elif mario.left_touches(koopa_spinning) or mario.right_touches(koopa_spinning):
         dead()
