@@ -116,7 +116,6 @@ def tick(keys):
 
         koopa_standing.xspeed = koopa_velocity
         koopa_x = koopa_standing.x
-        koopa_y = koopa_standing.y
         if koopa_standing.x > 1550:
             koopa_standing.x -= 20
             koopa_velocity *= -1
@@ -126,8 +125,6 @@ def tick(keys):
         koopa_standing.move_speed()
 
         koopa_spinning.xspeed = koopa_velocity
-        koopa_x = koopa_spinning.x
-        koopa_y = koopa_spinning.y
         if koopa_spinning.x > 1400:
             koopa_spinning.x -= 25
             koopa_velocity *= -1
@@ -148,6 +145,34 @@ def tick(keys):
     if mario.x < position - 400:
         mario.x = position - 400
 
+    # Mario interacts with enemies and dies
+    #BUG: the enemies do not re appear after mario revives and they still kill mario after they are dead
+    if mario.y > 800:
+        dead()
+    if goomba.top_touches(mario):
+        mario.move_to_stop_overlapping(goomba)
+        goomba.y = -200
+        goomba_dead = True
+    elif mario.left_touches(goomba) or mario.right_touches(goomba):
+        dead()
+    if koopa_standing.top_touches(mario):
+        mario.move_to_stop_overlapping(koopa_standing)
+        koopa_standing.x += 40
+        koopa_down = True
+        koopa_velocity *= 1.2
+        koopa_spinning.x = koopa_x
+        koopa_spinning.y = 535
+    elif mario.left_touches(koopa_standing) or mario.right_touches(koopa_standing):
+        dead()
+    if koopa_spinning.top_touches(mario):
+        koopa_spinning.y = -200
+        koopa_dead = True
+    elif mario.left_touches(koopa_spinning) or mario.right_touches(koopa_spinning):
+        dead()
+    for trap in traps:
+        if mario.left_touches(trap) or mario.right_touches(trap):
+            dead()
+
     # this is how Mario interacts with the borders
     for border in borders:
         if mario.top_touches(border):
@@ -163,32 +188,6 @@ def tick(keys):
         else:
             mario.speedy = 0
             mario.move_to_stop_overlapping(border)
-
-    # Mario interacts with enemies and dies
-    #BUG: the enemies do not re appear after mario revives and they still kill mario after they are dead
-    if mario.y > 800:
-        dead()
-    if goomba.top_touches(mario):
-        mario.move_to_stop_overlapping(goomba)
-        goomba.y = -200
-        goomba_dead = True
-    elif mario.left_touches(goomba) or mario.right_touches(goomba):
-        dead()
-    if koopa_standing.top_touches(mario):
-        mario.move_to_stop_overlapping(koopa_standing)
-        koopa_standing.x += 10
-        koopa_down = True
-        koopa_velocity *= 1.5
-    elif mario.left_touches(koopa_standing) or mario.right_touches(koopa_standing):
-        dead()
-    if koopa_standing.top_touches(mario):
-        koopa_spinning.y = -200
-        koopa_dead = True
-    elif mario.left_touches(koopa_spinning) or mario.right_touches(koopa_spinning):
-        dead()
-    for trap in traps:
-        if mario.left_touches(trap) or mario.right_touches(trap):
-            dead()
 
     # drawing all the objects
     camera.draw(mario)
