@@ -45,19 +45,19 @@ def dead():
     global koopa_y
     global goomba_velocity
     global koopa_velocity
-    if health <= 1:
-        camera.draw(gamebox.from_text(400, 200, "Game over", 40, "Red"))
+    health -= 1
+    if health < 1:
         camera.center = [400, 300]
-        # gamebox.pause()
+        camera.draw(gamebox.from_text(400, 200, "Game over", 40, "Red"))
+        gamebox.pause()
     elif past_save:
-        camera.center = [2000, 300]
+        camera.center = [4000, 300]
     else:
         camera.center = [400, 300]
         mario.x = 100
         mario.y = 530
         mario.xspeed = 0
         mario.yspeed = 0
-    health -= 1
     position = 400
     goomba_dead = False
     koopa_dead = False
@@ -134,7 +134,7 @@ def tick(keys):
         koopa_spinning.move_speed()
 
     # Save Point
-    if mario.x > 10000:  # Arbitrary x value needs to be changed
+    if mario.x > 12000:  # Arbitrary x value needs to be changed
         past_save = True
     # Insert counter here to stop from iterating every tick?
 
@@ -157,10 +157,9 @@ def tick(keys):
         dead()
     if koopa_standing.top_touches(mario):
         mario.move_to_stop_overlapping(koopa_standing)
-        koopa_standing.x += 40
         koopa_down = True
         koopa_velocity *= 1.2
-        koopa_spinning.x = koopa_x
+        koopa_spinning.x = koopa_x + 50
         koopa_spinning.y = 535
     elif mario.left_touches(koopa_standing) or mario.right_touches(koopa_standing):
         dead()
@@ -205,4 +204,4 @@ def tick(keys):
     camera.display()
 
 
-gamebox.timer_loop(30, tick)
+gamebox.timer_loop(40, tick)
