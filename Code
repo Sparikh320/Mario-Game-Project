@@ -55,12 +55,13 @@ def dead():
         camera.center = [400, 300]
         mario.x = 100
         mario.y = 530
+        mario.xspeed = 0
+        mario.yspeed = 0
     health -= 1
     position = 400
     goomba_dead = False
     koopa_dead = False
     koopa_down = False
-
     goomba.x = 300
     goomba.y = 530
     koopa_x = 1300
@@ -114,7 +115,7 @@ def tick(keys):
         goomba.move_speed()
 
         koopa_standing.xspeed = koopa_velocity
-        if koopa_standing.x > 1400:
+        if koopa_standing.x > 1550:
             koopa_standing.x -= 20
             koopa_velocity *= -1
         if koopa_standing.x < 1200:
