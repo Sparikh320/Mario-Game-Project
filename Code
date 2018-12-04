@@ -10,6 +10,8 @@ koopa_dead = False
 health = 3
 koopa_x = 1300
 koopa_y = 530
+goomba_velocity = 5
+koopa_velocity = 7
 
 borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(400, 875, "green", 800, 650),
@@ -60,6 +62,8 @@ def tick(keys):
     global koopa_x
     global koopa_y
     global past_save
+    global goomba_velocity
+    global koopa_velocity
     camera.clear("lightblue")
     if not game_on:
         camera.draw(gamebox.from_text(400, 100, "Mario", 50, "Red"))
@@ -80,7 +84,34 @@ def tick(keys):
             mario.x += 10
         if pygame.K_LEFT in keys:
             mario.x += -10
-    mario.move_speed()
+        mario.move_speed()
+
+        goomba.xspeed = goomba_velocity
+        if goomba.x >= 375:
+            goomba.x -= 10
+            goomba_velocity *= -1
+        if goomba.x <= 225:
+            goomba.x += 10
+            goomba_velocity *= -1
+        goomba.move_speed()
+
+        koopa_standing.xspeed = koopa_velocity
+        if koopa_standing.x > 1400:
+            koopa_standing.x -= 10
+            koopa_velocity *= -1
+        if koopa_standing.x < 1200:
+            koopa_standing.x += 10
+            koopa_velocity *= -1
+        koopa_standing.move_speed()
+
+        koopa_spinning.xspeed = koopa_velocity
+        if koopa_spinning.x > 1400:
+            koopa_spinning.x -= 10
+            koopa_velocity *= -1
+        if koopa_spinning.x < 1200:
+            koopa_spinning.x += 10
+            koopa_velocity *= -1
+        koopa_spinning.move_speed()
 
     # Save Point
     if mario.x > 2000:  # Arbitrary x value needs to be changed
