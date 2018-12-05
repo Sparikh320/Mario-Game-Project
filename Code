@@ -214,3 +214,18 @@ def tick(keys):
 
 
 gamebox.timer_loop(35, tick)
+
+
+borders = [#gamebox.from_color(400, 20, "black", 8000, 40),
+           gamebox.from_color(400, 875, "green", 800, 650),
+           gamebox.from_color(500, 450, "brown", 50, 50),
+           gamebox.from_color(650, 350, "brown", 50, 50),
+           gamebox.from_color(1300, 875, "green", 800, 650),
+           gamebox.from_color(850, 300, "brown", 150, 50),#
+           gamebox.from_color(1000, 200, "brown", 50, 50),#
+           gamebox.from_color(1200, 200, "brown", 50, 50),#
+           gamebox.from_color(1200, 450, "brown", 150, 50),
+           gamebox.from_color(1400, 350, "brown", 100, 50),
+           #gamebox.from_color(2200, 575, "green", 800, 50)
+           gamebox.from_color(2000, 450, "brown", 50, 50)
+     ]
