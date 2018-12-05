@@ -32,6 +32,43 @@ mario.speedx = 0
 position = 400
 past_save = False
 
+count = 8
+def border_func(death = False):
+    global position
+    global borders
+    global count
+    all_borders = [  # gamebox.from_color(400, 20, "black", 8000, 40),
+        gamebox.from_color(400, 875, "green", 800, 650),
+        gamebox.from_color(500, 450, "brown", 50, 50),
+        gamebox.from_color(650, 350, "brown", 50, 50),
+        gamebox.from_color(1300, 875, "green", 800, 650),
+        gamebox.from_color(850, 300, "brown", 150, 50),  #
+        gamebox.from_color(1000, 200, "brown", 50, 50),  #
+        gamebox.from_color(1200, 200, "brown", 50, 50),  #
+        gamebox.from_color(1200, 450, "brown", 150, 50),
+        gamebox.from_color(1400, 350, "brown", 100, 50),
+        gamebox.from_color(2200, 575, "green", 800, 50),
+        gamebox.from_color(1600, 450, "brown", 150, 50)
+    ]
+    if death:
+        borders = all_borders[0:9]
+        death = False
+        count = 8
+    for border in borders:
+        if border.x < position - 400 and count != 0 and border != all_borders[0]:
+            count += 1
+            borders.remove(border)
+            try:
+                borders.append(all_borders[count])
+            except:
+                count = 0
+                break
+    #if position > 800:
+    #    for i in range(len(borders)-2):
+    #        borders.remove(borders[i])
+    #    for i in range(3,7):
+    #        borders.append(all_borders[i])
+
 
 def dead():
     global health
@@ -44,6 +81,7 @@ def dead():
     global koopa_y
     global goomba_velocity
     global koopa_velocity
+    border_func(True)
     health -= 1
     if health < 1:
         camera.center = [400, 300]
@@ -92,6 +130,8 @@ def tick(keys):
         camera.draw(gamebox.from_text(400, 350, "Press space to start", 40, "Red"))
     if pygame.K_SPACE in keys:
         game_on = True
+
+    border_func()
 
     # player movement
     if game_on:
@@ -212,20 +252,4 @@ def tick(keys):
             camera.draw(koopa_spinning)
     camera.display()
 
-
 gamebox.timer_loop(35, tick)
-
-
-borders = [#gamebox.from_color(400, 20, "black", 8000, 40),
-           gamebox.from_color(400, 875, "green", 800, 650),
-           gamebox.from_color(500, 450, "brown", 50, 50),
-           gamebox.from_color(650, 350, "brown", 50, 50),
-           gamebox.from_color(1300, 875, "green", 800, 650),
-           gamebox.from_color(850, 300, "brown", 150, 50),#
-           gamebox.from_color(1000, 200, "brown", 50, 50),#
-           gamebox.from_color(1200, 200, "brown", 50, 50),#
-           gamebox.from_color(1200, 450, "brown", 150, 50),
-           gamebox.from_color(1400, 350, "brown", 100, 50),
-           #gamebox.from_color(2200, 575, "green", 800, 50)
-           gamebox.from_color(2000, 450, "brown", 50, 50)
-     ]
