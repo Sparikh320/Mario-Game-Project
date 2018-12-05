@@ -7,11 +7,10 @@ game_on = False
 goomba_dead = False
 koopa_down = False
 koopa_dead = False
-health = 3
+health = 10
 koopa_x = 1300
-koopa_y = 530
 goomba_velocity = 5
-koopa_velocity = 7
+koopa_velocity = 6
 
 borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(400, 875, "green", 800, 650),
@@ -23,12 +22,12 @@ borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(1200, 450, "brown", 150, 50),
            gamebox.from_color(1400, 350, "brown", 100, 50)]
 
-goomba = gamebox.from_color(300, 530, "brown", 30, 35)
-koopa_standing = gamebox.from_color(koopa_x, koopa_y, "green", 25, 50)
-koopa_spinning = gamebox.from_color(koopa_x, -200, "green", 30, 20)
+goomba = gamebox.from_color(300, 530, "brown", 25, 35)
+koopa_standing = gamebox.from_color(koopa_x, 530, "green", 25, 40)
+koopa_spinning = gamebox.from_color(koopa_x, 1000, "green", 25, 20)
 traps = [gamebox.from_color(650, 530, "grey", 50, 40)]
 
-mario = gamebox.from_color(100, 530, "red", 30, 40)
+mario = gamebox.from_color(100, 530, "red", 32, 40)
 mario.speedx = 0
 position = 400
 past_save = False
@@ -64,8 +63,9 @@ def dead():
     koopa_down = False
     goomba.x = 300
     goomba.y = 530
-    koopa_x = 1300
-    koopa_y = 530
+    koopa_standing.x = 1300
+    koopa_standing.y = 530
+    koopa_spinning.y = 1000
     goomba_velocity = 5
     koopa_velocity = 7
 
@@ -125,7 +125,7 @@ def tick(keys):
         koopa_standing.move_speed()
 
         koopa_spinning.xspeed = koopa_velocity
-        if koopa_spinning.x > 1400:
+        if koopa_spinning.x > 1550:
             koopa_spinning.x -= 25
             koopa_velocity *= -1
         if koopa_spinning.x < 1200:
@@ -149,22 +149,30 @@ def tick(keys):
     #BUG: the enemies do not re appear after mario revives and they still kill mario after they are dead
     if mario.y > 800:
         dead()
-    if goomba.top_touches(mario):
+    if (goomba.top_touches(mario) or mario.bottom_touches(goomba)) and not goomba_dead: #while the last two pieces of these statements seem unecessary, they help safeguard against glitches
+        mario.y -= 20
         mario.move_to_stop_overlapping(goomba)
-        goomba.y = -200
+        mario.speedy = -40
+        goomba.y = 1000
         goomba_dead = True
     elif mario.left_touches(goomba) or mario.right_touches(goomba):
         dead()
-    if koopa_standing.top_touches(mario):
+    if (koopa_standing.top_touches(mario) or mario.bottom_touches(koopa_standing)) and not koopa_down:
+        mario.y -= 20
         mario.move_to_stop_overlapping(koopa_standing)
+        mario.speedy = -40
+        koopa_standing.y = 1000
         koopa_down = True
         koopa_velocity *= 1.2
-        koopa_spinning.x = koopa_x + 50
+        koopa_spinning.x = koopa_x
         koopa_spinning.y = 535
     elif mario.left_touches(koopa_standing) or mario.right_touches(koopa_standing):
         dead()
-    if koopa_spinning.top_touches(mario):
-        koopa_spinning.y = -200
+    if (koopa_spinning.top_touches(mario) or mario.bottom_touches(koopa_spinning)) and not koopa_dead:
+        mario.y -= 20
+        mario.move_to_stop_overlapping(koopa_spinning)
+        mario.speedy = -40
+        koopa_spinning.y = 1000
         koopa_dead = True
     elif mario.left_touches(koopa_spinning) or mario.right_touches(koopa_spinning):
         dead()
@@ -175,7 +183,8 @@ def tick(keys):
     # this is how Mario interacts with the borders
     for border in borders:
         if mario.top_touches(border):
-            mario.speedy = 0.5
+            mario.speedy = 0.65
+            mario.move_to_stop_overlapping(border)
         if mario.left_touches(border) or mario.right_touches(border):
             if mario.speedy < 0:
                 mario.speedx *= -0.1
@@ -204,4 +213,4 @@ def tick(keys):
     camera.display()
 
 
-gamebox.timer_loop(40, tick)
+gamebox.timer_loop(35, tick)
