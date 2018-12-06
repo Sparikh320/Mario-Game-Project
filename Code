@@ -31,7 +31,7 @@ koopa_standing = gamebox.from_color(koopa_x, 530, "green", 25, 40)
 koopa_spinning = gamebox.from_color(koopa_x, 1000, "green", 25, 20)
 
 # Bowser
-bowser = gamebox.from_color(3400, 525, "green", 40, 50)
+bowser = gamebox.from_color(3400, 525, "green", 30, 40)
 bowsers_fire_ball = gamebox.from_color(3400, 800, "orange", 35, 35)
 bowser_x_position = 0
 bowser_velocity = 0
@@ -120,6 +120,8 @@ def dead():
     global koopa_velocity
     global bowser_velocity
     global bowser_health
+    global timer
+    timer = 0
     border_func(True)
     health -= 1
     if health < 1:
@@ -184,17 +186,18 @@ def tick(keys):
     # player movement
     if game_on:
         timer += 1
-        mario_position_x = mario.x
-        mario_position_y = mario.y
-        if pygame.K_UP in keys:
-            for border in borders:  # Mario can only jump up if he is not in the air already
-                if mario.bottom_touches(border):
-                    mario.speedy = -40
-        if pygame.K_RIGHT in keys:
-            mario.x += 10
-        if pygame.K_LEFT in keys:
-            mario.x += -10
-        mario.move_speed()
+        if timer > 35:
+            mario_position_x = mario.x
+            mario_position_y = mario.y
+            if pygame.K_UP in keys:
+                for border in borders:  # Mario can only jump up if he is not in the air already
+                    if mario.bottom_touches(border):
+                        mario.speedy = -40
+            if pygame.K_RIGHT in keys:
+                mario.x += 10
+            if pygame.K_LEFT in keys:
+                mario.x += -10
+            mario.move_speed()
 
         goomba.xspeed = goomba_velocity
         if goomba.x >= 375:
@@ -316,7 +319,7 @@ def tick(keys):
             if timer % 60 == 0:
                 bowsers_fire_ball.x = bowser_x_position
                 bowsers_fire_ball.y = 520
-                x_distance = mario_position_x - 2400
+                x_distance = mario_position_x - bowser_x_position
                 y_distance = mario_position_y - 520
                 length = math.sqrt((x_distance ** 2) + (y_distance ** 2))
                 bowsers_fire_ball.speedx = velocity * (x_distance / length)
@@ -324,7 +327,7 @@ def tick(keys):
     if mario.touches(bowsers_fire_ball):
         dead()
     if (bowser.top_touches(mario) or mario.bottom_touches(bowser)) and not bowser_dead: #while the last two pieces of these statements seem unecessary, they help safeguard against glitches
-        mario.y -= 20
+        mario.y -= 60
         mario.move_to_stop_overlapping(bowser)
         mario.speedy = -40
         if bowser_health == 1:
