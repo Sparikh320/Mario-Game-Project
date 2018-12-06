@@ -45,6 +45,7 @@ ball_of_fire = gamebox.from_color(2400, 800, "orange", 35, 35)
 # Traps
 traps = [gamebox.from_color(650, 530, "grey", 50, 40)]
 
+# Borders
 borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(400, 875, "green", 800, 650),
            gamebox.from_color(1300, 875, "green", 800, 650),
@@ -55,6 +56,7 @@ borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(1200, 450, "brown", 150, 50),
            gamebox.from_color(1400, 350, "brown", 100, 50)]
 
+# This is how borders are added and removed from the game
 count = 8
 def border_func(death = False):
     global position
@@ -107,6 +109,7 @@ def border_func(death = False):
 #         ball_of_fire.speedx = velocity * (x_distance/length)
 #         ball_of_fire.speedy = velocity * (y_distance / length)
 
+
 def dead():
     global health
     global past_save
@@ -121,32 +124,42 @@ def dead():
     global bowser_velocity
     global bowser_health
     global timer
-    timer = 0
+    global bowser_dead
+    timer = 0 # This resets the global timer, to make sure Mario waits a second before moving again
+
     border_func(True)
+
     health -= 1
     if health < 1:
         camera.center = [400, 300]
         camera.draw(gamebox.from_text(400, 200, "Game over", 40, "Red"))
         gamebox.pause()
+
     elif past_save:
-        camera.center = [4000, 300]
+        camera.center = [2500, 300]
+        mario.x = 2500
+        mario.y = 100
     else:
         camera.center = [400, 300]
         mario.x = 100
-        mario.y = 530
+        mario.y = 100
         mario.xspeed = 0
         mario.yspeed = 0
+
     position = 400
     goomba_dead = False
-    koopa_dead = False
-    koopa_down = False
     goomba.x = 300
     goomba.y = 530
+    goomba_velocity = 5
+
+    koopa_dead = False
+    koopa_down = False
     koopa_standing.x = 1300
     koopa_standing.y = 530
     koopa_spinning.y = 1000
-    goomba_velocity = 5
     koopa_velocity = 7
+
+    bowser_dead = False
     bowser_health = 3
     bowser_velocity = 0
 
@@ -183,9 +196,20 @@ def tick(keys):
 
     border_func()
 
-    # player movement
+    ## OBJECT MOVEMENT
     if game_on:
         timer += 1
+        if timer < 35:
+            if not past_save:
+                camera.draw(gamebox.from_text(400, 350, "Wait...", 40, "Red"))
+            else:
+                camera.draw(gamebox.from_text(2500, 350, "Wait...", 40, "Red"))
+        elif 35 < timer < 105:
+            if not past_save:
+                camera.draw(gamebox.from_text(400, 350, "GO!", 40, "Red"))
+            else:
+                camera.draw(gamebox.from_text(2500, 350, "GO!", 40, "Red"))
+        # Mario Movement
         if timer > 35:
             mario_position_x = mario.x
             mario_position_y = mario.y
@@ -199,6 +223,7 @@ def tick(keys):
                 mario.x += -10
             mario.move_speed()
 
+        # Goomba Movement
         goomba.xspeed = goomba_velocity
         if goomba.x >= 375:
             goomba.x -= 10
@@ -208,6 +233,7 @@ def tick(keys):
             goomba_velocity *= -1
         goomba.move_speed()
 
+        # Koopa Standing Movement
         koopa_standing.xspeed = koopa_velocity
         koopa_x = koopa_standing.x
         if koopa_standing.x > 1550:
@@ -218,6 +244,7 @@ def tick(keys):
             koopa_velocity *= -1
         koopa_standing.move_speed()
 
+        # Koopa Spinning Movement
         koopa_spinning.xspeed = koopa_velocity
         if koopa_spinning.x > 1550:
             koopa_spinning.x -= 25
@@ -227,7 +254,7 @@ def tick(keys):
             koopa_velocity *= -1
         koopa_spinning.move_speed()
 
-        # Bowser Moving
+        # Bowser Movement
         bowser.xspeed = bowser_velocity
         bowser_x_position = bowser.x
         if mario.x > 2900:
@@ -253,8 +280,8 @@ def tick(keys):
             ball_of_fire.speedy = 0
         ball_of_fire.move_speed()
 
-    # Save Point
-    if mario.x > 12000:  # Arbitrary x value needs to be changed
+## SAVE POINT
+    if mario.x > 2500:  # Arbitrary x value needs to be changed
         past_save = True
     # Insert counter here to stop from iterating every tick?
 
