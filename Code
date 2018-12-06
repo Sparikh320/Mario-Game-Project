@@ -1,16 +1,49 @@
 # Anthony Esquivel afe2xd, Sahil Parikh sp4qf
 import pygame
 import gamebox
+import math
 
+# Game - related
 camera = gamebox.Camera(800, 600)
+position = 400
 game_on = False
+timer = 0
+past_save = False
+
+# Mario
+mario = gamebox.from_color(100, 530, "red", 32, 40)
+mario.speedx = 0
+health = 15
+mario_position_x = 0
+mario_position_y = 0
+
+# Goomba
+goomba = gamebox.from_color(300, 530, "brown", 25, 35)
 goomba_dead = False
+goomba_velocity = 5
+
+# Koopa
 koopa_down = False
 koopa_dead = False
-health = 10
 koopa_x = 1300
-goomba_velocity = 5
 koopa_velocity = 6
+koopa_standing = gamebox.from_color(koopa_x, 530, "green", 25, 40)
+koopa_spinning = gamebox.from_color(koopa_x, 1000, "green", 25, 20)
+
+# Bowser
+bowser = gamebox.from_color(3400, 525, "green", 40, 50)
+bowsers_fire_ball = gamebox.from_color(3400, 800, "orange", 35, 35)
+bowser_x_position = 0
+bowser_velocity = 0
+bowser_health = 2
+bowser_dead = False
+
+# Fire Flower
+fire_flower = gamebox.from_color(2400, 520, "orange", 25, 60)
+ball_of_fire = gamebox.from_color(2400, 800, "orange", 35, 35)
+
+# Traps
+traps = [gamebox.from_color(650, 530, "grey", 50, 40)]
 
 borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(400, 875, "green", 800, 650),
@@ -22,16 +55,57 @@ borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(1200, 450, "brown", 150, 50),
            gamebox.from_color(1400, 350, "brown", 100, 50)]
 
-goomba = gamebox.from_color(300, 530, "brown", 25, 35)
-koopa_standing = gamebox.from_color(koopa_x, 530, "green", 25, 40)
-koopa_spinning = gamebox.from_color(koopa_x, 1000, "green", 25, 20)
-traps = [gamebox.from_color(650, 530, "grey", 50, 40)]
+count = 8
+def border_func(death = False):
+    global position
+    global borders
+    global count
+    all_borders = [  # gamebox.from_color(400, 20, "black", 8000, 40),
+        gamebox.from_color(400, 875, "green", 800, 650),
+        gamebox.from_color(500, 450, "brown", 50, 50),
+        gamebox.from_color(650, 350, "brown", 50, 50),
+        gamebox.from_color(1300, 875, "green", 800, 650),
+        gamebox.from_color(850, 300, "brown", 150, 50),  #
+        gamebox.from_color(1000, 200, "brown", 50, 50),  #
+        gamebox.from_color(1200, 200, "brown", 50, 50),  #
+        gamebox.from_color(1200, 450, "brown", 150, 50),
+        gamebox.from_color(1400, 350, "brown", 100, 50),
+        gamebox.from_color(2200, 575, "green", 800, 50),
+        gamebox.from_color(1600, 450, "brown", 150, 50),
+        gamebox.from_color(3100, 575, "green", 800, 50)
+    ]
+    if death:
+        borders = all_borders[0:9]
+        death = False
+        count = 8
+    for border in borders:
+        if border.x < position - 400 and count != 0 and border != all_borders[0]:
+            count += 1
+            borders.remove(border)
+            try:
+                borders.append(all_borders[count])
+            except:
+                count = 0
+                break
+    return #IDK WHETHER THIS SHOULD BE THERE
 
-mario = gamebox.from_color(100, 530, "red", 32, 40)
-mario.speedx = 0
-position = 400
-past_save = False
+    #if position > 800:
+    #    for i in range(len(borders)-2):
+    #        borders.remove(borders[i])
+    #    for i in range(3,7):
+    #        borders.append(all_borders[i])
 
+# def fireball():
+#     global timer
+#     global ball_of_fire
+#     velocity = 25
+#     if timer % 60 == 0:
+#         ball_of_fire.y = 520
+#         x_distance = mario_position_x - 2400
+#         y_distance = mario_position_y - 520
+#         length = math.sqrt((x_distance**2) + (y_distance**2))
+#         ball_of_fire.speedx = velocity * (x_distance/length)
+#         ball_of_fire.speedy = velocity * (y_distance / length)
 
 def dead():
     global health
@@ -44,6 +118,9 @@ def dead():
     global koopa_y
     global goomba_velocity
     global koopa_velocity
+    global bowser_velocity
+    global bowser_health
+    border_func(True)
     health -= 1
     if health < 1:
         camera.center = [400, 300]
@@ -68,7 +145,8 @@ def dead():
     koopa_spinning.y = 1000
     goomba_velocity = 5
     koopa_velocity = 7
-
+    bowser_health = 3
+    bowser_velocity = 0
 
 
 def tick(keys):
@@ -83,6 +161,14 @@ def tick(keys):
     global past_save
     global goomba_velocity
     global koopa_velocity
+    global bowser_velocity
+    global timer
+    global mario_position_x
+    global mario_position_y
+    global bowser_health
+    global bowser_x_position
+    global bowser_dead
+
     camera.clear("lightblue")
     if not game_on:
         camera.draw(gamebox.from_text(400, 100, "Mario", 50, "Red"))
@@ -93,8 +179,13 @@ def tick(keys):
     if pygame.K_SPACE in keys:
         game_on = True
 
+    border_func()
+
     # player movement
     if game_on:
+        timer += 1
+        mario_position_x = mario.x
+        mario_position_y = mario.y
         if pygame.K_UP in keys:
             for border in borders:  # Mario can only jump up if he is not in the air already
                 if mario.bottom_touches(border):
@@ -132,6 +223,32 @@ def tick(keys):
             koopa_spinning.x += 25
             koopa_velocity *= -1
         koopa_spinning.move_speed()
+
+        # Bowser Moving
+        bowser.xspeed = bowser_velocity
+        bowser_x_position = bowser.x
+        if mario.x > 2900:
+            if mario.x > bowser.x:
+                bowser_velocity = 8
+            elif mario.x < bowser.x:
+                bowser_velocity = -8
+            bowser.move_speed()
+
+        # Fireballs resetting after going off screen
+        if bowsers_fire_ball.x < 2500:
+            bowsers_fire_ball.x = bowser_x_position
+            bowsers_fire_ball.y = 800
+            bowsers_fire_ball.speedx = 0
+            bowsers_fire_ball.speedy = 0
+        bowsers_fire_ball.move_speed()
+
+        # Fireballs resetting after going off screen
+        if ball_of_fire.x < 1800:
+            ball_of_fire.x = 2400
+            ball_of_fire.y = 800
+            ball_of_fire.speedx = 0
+            ball_of_fire.speedy = 0
+        ball_of_fire.move_speed()
 
     # Save Point
     if mario.x > 12000:  # Arbitrary x value needs to be changed
@@ -179,6 +296,44 @@ def tick(keys):
     for trap in traps:
         if mario.left_touches(trap) or mario.right_touches(trap):
             dead()
+    if mario.touches(fire_flower):
+        dead()
+    if (position - 400) < fire_flower.x < (position + 400):
+        if mario.x < fire_flower.x:
+            velocity = 12
+            if timer % 60 == 0:
+                ball_of_fire.y = 520
+                x_distance = mario_position_x - 2400
+                y_distance = mario_position_y - 520
+                length = math.sqrt((x_distance ** 2) + (y_distance ** 2))
+                ball_of_fire.speedx = velocity * (x_distance / length)
+                ball_of_fire.speedy = velocity * (y_distance / length)
+    if mario.touches(ball_of_fire):
+        dead()
+    if (position - 400) < bowser.x < (position + 400):
+        if not bowser_dead:
+            velocity = 12
+            if timer % 60 == 0:
+                bowsers_fire_ball.x = bowser_x_position
+                bowsers_fire_ball.y = 520
+                x_distance = mario_position_x - 2400
+                y_distance = mario_position_y - 520
+                length = math.sqrt((x_distance ** 2) + (y_distance ** 2))
+                bowsers_fire_ball.speedx = velocity * (x_distance / length)
+                bowsers_fire_ball.speedy = velocity * (y_distance / length)
+    if mario.touches(bowsers_fire_ball):
+        dead()
+    if (bowser.top_touches(mario) or mario.bottom_touches(bowser)) and not bowser_dead: #while the last two pieces of these statements seem unecessary, they help safeguard against glitches
+        mario.y -= 20
+        mario.move_to_stop_overlapping(bowser)
+        mario.speedy = -40
+        if bowser_health == 1:
+            bowser_dead = True
+            bowser.y = 800
+        else:
+            bowser_health -= 1
+    elif mario.left_touches(bowser) or mario.right_touches(bowser):
+        dead()
 
     # this is how Mario interacts with the borders
     for border in borders:
@@ -192,7 +347,8 @@ def tick(keys):
                 mario.speedy += 1.3
                 keys.clear()
         elif not mario.bottom_touches(border):
-            mario.speedy += 0.65  # whenever mario is in the air he gains downward velocity
+            if mario.speedy < 40:
+                mario.speedy += 0.65  # whenever mario is in the air he gains downward velocity
         else:
             mario.speedy = 0
             mario.move_to_stop_overlapping(border)
@@ -210,8 +366,10 @@ def tick(keys):
             camera.draw(koopa_standing)
         else:
             camera.draw(koopa_spinning)
+    if not bowser_dead:
+        camera.draw(bowser)
+    camera.draw(fire_flower)
+    camera.draw(ball_of_fire)
     camera.display()
 
-
 gamebox.timer_loop(35, tick)
-
