@@ -45,9 +45,14 @@ ball_of_fire = gamebox.from_color(2400, 800, "orange", 35, 35)
 # Traps
 traps = [gamebox.from_color(650, 530, "grey", 50, 40)]
 
+heart_drawing_counter = 0
+list_of_hearts = []
+while heart_drawing_counter < health:
+    list_of_hearts.append(gamebox.from_color((position - 380 + (heart_drawing_counter*35)), 23, "red", 25, 40))
+    heart_drawing_counter += 1
+
 # Borders
-borders = [gamebox.from_color(400, 20, "black", 8000, 40),
-           gamebox.from_color(400, 875, "green", 800, 650),
+borders = [gamebox.from_color(400, 875, "green", 800, 650),
            gamebox.from_color(1300, 875, "green", 800, 650),
            gamebox.from_color(500, 450, "brown", 50, 50),
            gamebox.from_color(650, 350, "brown", 50, 50),
@@ -55,6 +60,9 @@ borders = [gamebox.from_color(400, 20, "black", 8000, 40),
            gamebox.from_color(1100, 150, "brown", 50, 50),
            gamebox.from_color(1200, 450, "brown", 150, 50),
            gamebox.from_color(1400, 350, "brown", 100, 50)]
+
+# The Wall Which Blocks Princess Peach
+final_wall = gamebox.from_color(2500, 300, "gold", 100, 6000)
 
 # This is how borders are added and removed from the game
 count = 8
@@ -74,7 +82,8 @@ def border_func(death = False):
         gamebox.from_color(1400, 350, "brown", 100, 50),
         gamebox.from_color(2200, 575, "green", 800, 50),
         gamebox.from_color(1600, 450, "brown", 150, 50),
-        gamebox.from_color(3100, 575, "green", 800, 50)
+        gamebox.from_color(3100, 575, "green", 800, 50),
+        gamebox.from_color(3900, 575, "green", 800, 50)
     ]
     if death:
         borders = all_borders[0:9]
@@ -162,6 +171,9 @@ def dead():
     bowser_dead = False
     bowser_health = 3
     bowser_velocity = 0
+
+    final_wall.speedy = 00
+    final_wall.y = 300
 
 
 def tick(keys):
@@ -296,15 +308,15 @@ def tick(keys):
     #BUG: the enemies do not re appear after mario revives and they still kill mario after they are dead
     if mario.y > 800:
         dead()
-    if (goomba.top_touches(mario) or mario.bottom_touches(goomba)) and not goomba_dead: #while the last two pieces of these statements seem unecessary, they help safeguard against glitches
+    if goomba.top_touches(mario, 17) and mario.speedy > 0:
         mario.y -= 20
         mario.move_to_stop_overlapping(goomba)
         mario.speedy = -40
         goomba.y = 1000
         goomba_dead = True
-    elif mario.left_touches(goomba) or mario.right_touches(goomba):
+    elif mario.left_touches(goomba) or mario.right_touches(goomba) and mario.speedy <= 1:
         dead()
-    if (koopa_standing.top_touches(mario) or mario.bottom_touches(koopa_standing)) and not koopa_down:
+    if koopa_standing.top_touches(mario, 20) and (mario.speedy > 0):
         mario.y -= 20
         mario.move_to_stop_overlapping(koopa_standing)
         mario.speedy = -40
@@ -313,15 +325,15 @@ def tick(keys):
         koopa_velocity *= 1.2
         koopa_spinning.x = koopa_x
         koopa_spinning.y = 535
-    elif mario.left_touches(koopa_standing) or mario.right_touches(koopa_standing):
+    elif mario.left_touches(koopa_standing) or mario.right_touches(koopa_standing) and mario.speedy <= 1:
         dead()
-    if (koopa_spinning.top_touches(mario) or mario.bottom_touches(koopa_spinning)) and not koopa_dead:
+    if koopa_spinning.top_touches(mario, 15) and (mario.speedy > 0):
         mario.y -= 20
         mario.move_to_stop_overlapping(koopa_spinning)
         mario.speedy = -40
         koopa_spinning.y = 1000
         koopa_dead = True
-    elif mario.left_touches(koopa_spinning) or mario.right_touches(koopa_spinning):
+    elif mario.left_touches(koopa_spinning) or mario.right_touches(koopa_spinning) and mario.speedy <= 1:
         dead()
     for trap in traps:
         if mario.left_touches(trap) or mario.right_touches(trap):
@@ -343,7 +355,7 @@ def tick(keys):
     if (position - 400) < bowser.x < (position + 400):
         if not bowser_dead:
             velocity = 12
-            if timer % 60 == 0:
+            if timer % 80 == 0:
                 bowsers_fire_ball.x = bowser_x_position
                 bowsers_fire_ball.y = 520
                 x_distance = mario_position_x - bowser_x_position
@@ -353,8 +365,8 @@ def tick(keys):
                 bowsers_fire_ball.speedy = velocity * (y_distance / length)
     if mario.touches(bowsers_fire_ball):
         dead()
-    if (bowser.top_touches(mario) or mario.bottom_touches(bowser)) and not bowser_dead: #while the last two pieces of these statements seem unecessary, they help safeguard against glitches
-        mario.y -= 60
+    if bowser.top_touches(mario, 20) and (mario.speedy > 0):
+        mario.y -= 100
         mario.move_to_stop_overlapping(bowser)
         mario.speedy = -40
         if bowser_health == 1:
@@ -362,15 +374,18 @@ def tick(keys):
             bowser.y = 800
         else:
             bowser_health -= 1
-    elif mario.left_touches(bowser) or mario.right_touches(bowser):
+    elif mario.left_touches(bowser) or mario.right_touches(bowser) and mario.speedy <= 1:
         dead()
+    if bowser_dead:
+        final_wall.y = 10
+    # if mario.touches(princess_peach):
 
     # this is how Mario interacts with the borders
     for border in borders:
         if mario.top_touches(border):
-            mario.speedy = 0.65
+            mario.speedy = 0.5
             mario.move_to_stop_overlapping(border)
-        if mario.left_touches(border) or mario.right_touches(border):
+        if mario.left_touches(border, 2) or mario.right_touches(border, 2):
             if mario.speedy < 0:
                 mario.speedx *= -0.1
                 mario.move_to_stop_overlapping(border)
@@ -378,7 +393,7 @@ def tick(keys):
                 keys.clear()
         elif not mario.bottom_touches(border):
             if mario.speedy < 40:
-                mario.speedy += 0.65  # whenever mario is in the air he gains downward velocity
+                mario.speedy += 0.55  # whenever mario is in the air he gains downward velocity
         else:
             mario.speedy = 0
             mario.move_to_stop_overlapping(border)
@@ -400,6 +415,10 @@ def tick(keys):
         camera.draw(bowser)
     camera.draw(fire_flower)
     camera.draw(ball_of_fire)
+    camera.draw(bowsers_fire_ball)
+    for i in range(health):
+        list_of_hearts[i].x = (position - 380 + (i*35))
+        camera.draw(list_of_hearts[i])
     camera.display()
 
 gamebox.timer_loop(35, tick)
