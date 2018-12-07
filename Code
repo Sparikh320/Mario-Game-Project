@@ -1,4 +1,4 @@
-# Anthony Esquivel afe2xd, afe2xd, Sahil Parikh sp4qf
+# Anthony Esquivel afe2xd, Sahil Parikh sp4qf
 import pygame
 import gamebox
 import math
@@ -11,10 +11,9 @@ timer = 0
 past_save = False
 
 # Mario
-#mario_sprite_sheet = gamebox.load_sprite_sheet("Mario_Spritesheet.png", 10, 13)
 mario = gamebox.from_image(100, 530, "mario.png")
 mario.size = (32, 40)
-health = 15
+health = 10
 
 # Goomba
 goomba = gamebox.from_image(300, 530, "Goomba.png")
@@ -57,6 +56,10 @@ traps = [gamebox.from_image(650, 530, "Spikes.png"),
          gamebox.from_image(3100, 530, "Spikes.png")]
 for trap in traps:
     trap.size = (50, 40)
+
+# Timer
+time = 0
+timer_display = gamebox.from_text(position + 350, 25, '0', 30, "yellow")
 
 # Save Point
 save_point_flag = gamebox.from_image(2500, 505, "save_point_flag.png")
@@ -180,6 +183,7 @@ def dead():
     if health < 1:
         camera.center = [400, 300]
         camera.draw(gamebox.from_text(400, 200, "Game over", 40, "Red"))
+        camera.draw(gamebox.from_text(400, 300, "You Lose", 40, "Red"))
         gamebox.pause()
     elif past_save:
         camera.center = [2500, 300]
@@ -233,6 +237,9 @@ def tick(keys):
     global koopa_velocity
     global bowser_velocity
     global timer
+    global time
+    global timer_display
+    global concat_timer
     global bowser_health
     global bowser_dead
 
@@ -253,24 +260,38 @@ def tick(keys):
         mario.y = 530
         camera.draw(gamebox.from_text(4100, 100, "YOU WIN!", 50, "Red"))
         camera.draw(gamebox.from_text(4100, 200, "You have defeated the enemies and saved Princess Peach!", 40, "Red"))
+        camera.draw(gamebox.from_text(4100, 300, "Score: " + concat_timer, 50, "Red"))
         gamebox.pause()
 
     # Continuously removes and adds walls
     border_func()
 
-    ## OBJECT MOVEMENT
     if game_on:
+
+        # Timer
+        if timer > 40:
+            time += 1
+            frac = str(int((time % 35) / 35 * 10))
+            sec = str(int((time / 35) % 60)).zfill(2)
+            min = str(int((time / 35) / 60))
+            concat_timer = min + ":" + sec + ":" + frac
+
         timer += 1
         if timer < 40:
             if not past_save:
                 camera.draw(gamebox.from_text(400, 250, "Wait...", 60, "Red"))
             else:
                 camera.draw(gamebox.from_text(2500, 250, "Wait...", 60, "Red"))
-        elif 40 < timer < 105:
+        elif 40 < timer < 75:
             if not past_save:
                 camera.draw(gamebox.from_text(400, 250, "GO!", 60, "Red"))
             else:
                 camera.draw(gamebox.from_text(2500, 250, "GO!", 60, "Red"))
+
+        try:
+            timer_display = gamebox.from_text(position + 350, 25, concat_timer, 30, "yellow")
+        except:
+            timer_display = gamebox.from_text(position + 350, 25, '0', 30, "yellow")
 
         # Mario Movement
         if timer > 35:
@@ -440,6 +461,7 @@ def tick(keys):
     # Drawing all the objects
     camera.draw(mario)
     camera.draw(peach)
+    camera.draw(timer_display)
     for border in borders:
         camera.draw(border)
     for trap in traps:
