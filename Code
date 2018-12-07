@@ -48,13 +48,13 @@ while heart_drawing_counter < health:
 
 # Borders
 borders = [gamebox.from_color(400, 875, "green", 800, 650),
-           gamebox.from_color(1300, 875, "green", 800, 650),
-           gamebox.from_color(500, 450, "brown", 50, 50),
-           gamebox.from_color(650, 350, "brown", 50, 50),
-           gamebox.from_color(900, 250, "brown", 100, 50),
-           gamebox.from_color(1100, 150, "brown", 50, 50),
-           gamebox.from_color(1200, 450, "brown", 150, 50),
-           gamebox.from_color(1400, 350, "brown", 100, 50)]
+        gamebox.from_color(500, 450, "brown", 50, 50),
+        gamebox.from_color(650, 350, "brown", 50, 50),
+        gamebox.from_color(1300, 875, "green", 800, 650),
+        gamebox.from_color(850, 300, "brown", 150, 50),
+        gamebox.from_color(1000, 200, "brown", 50, 50),
+        gamebox.from_color(1200, 200, "brown", 50, 50),
+        gamebox.from_color(1200, 450, "brown", 150, 50),]
 
 all_borders = [
         gamebox.from_color(400, 875, "green", 800, 650),
@@ -70,7 +70,7 @@ all_borders = [
         gamebox.from_color(1600, 450, "brown", 150, 50),
         gamebox.from_color(3100, 575, "green", 800, 50),
         gamebox.from_color(3900, 575, "green", 800, 50,
-        gamebox.from_color(3500, 300, "gold", 100, 6000)
+        gamebox.from_color(3500, 300, "gold", 100, 1000)
     ]
     
 # This is how borders are added and removed from the game
