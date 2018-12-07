@@ -14,8 +14,8 @@ past_save = False
 mario = gamebox.from_color(100, 530, "red", 32, 40)
 mario.speedx = 0
 health = 15
-mario_position_x = 0
-mario_position_y = 0
+mario_position_x = mario.x
+mario_position_y = mario.y
 
 # Goomba
 goomba = gamebox.from_color(300, 530, "brown", 25, 35)
@@ -32,7 +32,6 @@ koopa_spinning = gamebox.from_color(koopa_x, 1000, "green", 25, 20)
 
 # Bowser
 bowser = gamebox.from_color(3400, 525, "green", 30, 40)
-bowsers_fire_ball = gamebox.from_color(3400, 800, "orange", 35, 35)
 bowser_x_position = 0
 bowser_velocity = 0
 bowser_health = 2
@@ -106,17 +105,17 @@ def border_func(death = False):
     #    for i in range(3,7):
     #        borders.append(all_borders[i])
 
-# def fireball():
-#     global timer
-#     global ball_of_fire
-#     velocity = 25
-#     if timer % 60 == 0:
-#         ball_of_fire.y = 520
-#         x_distance = mario_position_x - 2400
-#         y_distance = mario_position_y - 520
-#         length = math.sqrt((x_distance**2) + (y_distance**2))
-#         ball_of_fire.speedx = velocity * (x_distance/length)
-#         ball_of_fire.speedy = velocity * (y_distance / length)
+def fireball(source_x_position, rate):
+    global timer
+    velocity = 12
+    if timer % rate == 0:
+        ball_of_fire.x = source_x_position
+        ball_of_fire.y = 520
+        x_distance = mario.x - source_x_position
+        y_distance = mario_position_y - 520
+        length = math.sqrt((x_distance**2) + (y_distance**2))
+        ball_of_fire.speedx = velocity * (x_distance/length)
+        ball_of_fire.speedy = velocity * (y_distance / length)
 
 
 def dead():
@@ -277,16 +276,7 @@ def tick(keys):
             bowser.move_speed()
 
         # Fireballs resetting after going off screen
-        if bowsers_fire_ball.x < 2500:
-            bowsers_fire_ball.x = bowser_x_position
-            bowsers_fire_ball.y = 800
-            bowsers_fire_ball.speedx = 0
-            bowsers_fire_ball.speedy = 0
-        bowsers_fire_ball.move_speed()
-
-        # Fireballs resetting after going off screen
-        if ball_of_fire.x < 1800:
-            ball_of_fire.x = 2400
+        if ball_of_fire.x < (position - 400) or ball_of_fire.x > (position + 400):
             ball_of_fire.y = 800
             ball_of_fire.speedx = 0
             ball_of_fire.speedy = 0
@@ -342,29 +332,12 @@ def tick(keys):
         dead()
     if (position - 400) < fire_flower.x < (position + 400):
         if mario.x < fire_flower.x:
-            velocity = 12
-            if timer % 60 == 0:
-                ball_of_fire.y = 520
-                x_distance = mario_position_x - 2400
-                y_distance = mario_position_y - 520
-                length = math.sqrt((x_distance ** 2) + (y_distance ** 2))
-                ball_of_fire.speedx = velocity * (x_distance / length)
-                ball_of_fire.speedy = velocity * (y_distance / length)
+            fireball(fire_flower.x, 50)
     if mario.touches(ball_of_fire):
         dead()
     if (position - 400) < bowser.x < (position + 400):
         if not bowser_dead:
-            velocity = 12
-            if timer % 80 == 0:
-                bowsers_fire_ball.x = bowser_x_position
-                bowsers_fire_ball.y = 520
-                x_distance = mario_position_x - bowser_x_position
-                y_distance = mario_position_y - 520
-                length = math.sqrt((x_distance ** 2) + (y_distance ** 2))
-                bowsers_fire_ball.speedx = velocity * (x_distance / length)
-                bowsers_fire_ball.speedy = velocity * (y_distance / length)
-    if mario.touches(bowsers_fire_ball):
-        dead()
+            fireball(bowser_x_position, 80)
     if bowser.top_touches(mario, 20) and (mario.speedy > 0):
         mario.y -= 100
         mario.move_to_stop_overlapping(bowser)
@@ -377,7 +350,7 @@ def tick(keys):
     elif mario.left_touches(bowser) or mario.right_touches(bowser) and mario.speedy <= 1:
         dead()
     if bowser_dead:
-        final_wall.y = 10
+        final_wall.speedy = 10
     # if mario.touches(princess_peach):
 
     # this is how Mario interacts with the borders
@@ -415,7 +388,6 @@ def tick(keys):
         camera.draw(bowser)
     camera.draw(fire_flower)
     camera.draw(ball_of_fire)
-    camera.draw(bowsers_fire_ball)
     for i in range(health):
         list_of_hearts[i].x = (position - 380 + (i*35))
         camera.draw(list_of_hearts[i])
