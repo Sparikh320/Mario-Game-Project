@@ -59,7 +59,7 @@ borders = [gamebox.from_color(400, 575, "green", 800, 50),
         gamebox.from_color(2200, 575, "green", 800, 50)
            ]
 
-final_wall = gamebox.from_color(3500, 300, "gold", 100, 600)
+final_wall = gamebox.from_color(3500, 300, "gold", 30, 600)
 
 all_borders = [
         gamebox.from_color(400, 575, "green", 800, 50),
@@ -72,26 +72,25 @@ all_borders = [
         gamebox.from_color(1200, 450, "brown", 150, 50),
         gamebox.from_color(1400, 350, "brown", 100, 50),
         gamebox.from_color(2200, 575, "green", 800, 50),
-        gamebox.from_color(1600, 450, "brown", 150, 50),
         gamebox.from_color(3100, 575, "green", 800, 50),
         gamebox.from_color(3900, 575, "green", 800, 50),
         final_wall
     ]
 
 # This is how borders are added and removed from the game
-count = 9
+count = 8
 def border_func(death = False):
     global borders
     global count
     if death:
         if not past_save:
-            borders = all_borders[0:10]
-            count = 9
+            borders = all_borders[0:9]
+            count = 8
         else:
-            borders = all_borders[-10:]
-            count = 9
+            borders = all_borders[-9:]
+            count = 8
     else:
-        for border in borders:
+        for border in borders[0:3]:
             if border.right < position - 400 and count != 0:
                 count += 1
                 borders.remove(border)
@@ -164,6 +163,7 @@ def dead():
     koopa_velocity = 7
 
     bowser_dead = False
+    bowser.x = 3400
     bowser_health = 3
     bowser_velocity = 0
 
@@ -200,7 +200,7 @@ def tick(keys):
     ## OBJECT MOVEMENT
     if game_on:
         timer += 1
-        if timer < 35:
+        if timer < 40:
             if not past_save:
                 camera.draw(gamebox.from_text(400, 350, "Wait...", 40, "Red"))
             else:
@@ -255,11 +255,11 @@ def tick(keys):
 
         # Bowser Movement
         bowser.xspeed = bowser_velocity
-        if mario.x > 2900:
+        if mario.x > 2800:
             if mario.x > bowser.x:
-                bowser_velocity = 8
+                bowser.speedx = 7
             elif mario.x < bowser.x:
-                bowser_velocity = -8
+                bowser.speedx = -7
             bowser.move_speed()
 
         # Fireballs resetting after going off screen
@@ -269,6 +269,10 @@ def tick(keys):
             ball_of_fire.speedy = 0
         ball_of_fire.move_speed()
 
+        # Final Wall Going Down
+        if bowser_dead:
+            final_wall.speedy = -10
+
 ## SAVE POINT
     if mario.x > 2500:  # Arbitrary x value needs to be changed
         past_save = True
@@ -276,8 +280,13 @@ def tick(keys):
 
     # Screen Movement
     if mario.x > position:
-        camera.center = [mario.x, 300]
-        position = mario.x
+        if not bowser_dead:
+            if mario.x < 3100:
+                camera.center = [mario.x, 300]
+                position = mario.x
+        else:
+            camera.center = [mario.x, 300]
+            position = mario.x
     if mario.x < position - 400:
         mario.x = position - 400
 
@@ -285,13 +294,13 @@ def tick(keys):
     #BUG: the enemies do not re appear after mario revives and they still kill mario after they are dead
     if mario.y > 800:
         dead()
-    if goomba.top_touches(mario, 17) and mario.speedy > 0:
+    if goomba.top_touches(mario, 20) and mario.speedy > 0:
         mario.y -= 20
         mario.move_to_stop_overlapping(goomba)
         mario.speedy = -40
         goomba.y = 1000
         goomba_dead = True
-    elif mario.left_touches(goomba) or mario.right_touches(goomba) and mario.speedy <= 1:
+    elif mario.left_touches(goomba) or mario.right_touches(goomba) and mario.speedy >=1:
         dead()
     if koopa_standing.top_touches(mario, 20) and (mario.speedy > 0):
         mario.y -= 20
@@ -302,7 +311,7 @@ def tick(keys):
         koopa_velocity *= 1.2
         koopa_spinning.x = koopa_x
         koopa_spinning.y = 535
-    elif mario.left_touches(koopa_standing) or mario.right_touches(koopa_standing) and mario.speedy <= 1:
+    elif mario.left_touches(koopa_standing) or mario.right_touches(koopa_standing) and mario.speedy >= 1:
         dead()
     if koopa_spinning.top_touches(mario, 15) and (mario.speedy > 0):
         mario.y -= 20
@@ -310,7 +319,7 @@ def tick(keys):
         mario.speedy = -40
         koopa_spinning.y = 1000
         koopa_dead = True
-    elif mario.left_touches(koopa_spinning) or mario.right_touches(koopa_spinning) and mario.speedy <= 1:
+    elif mario.left_touches(koopa_spinning) or mario.right_touches(koopa_spinning) and mario.speedy >= 1:
         dead()
     for trap in traps:
         if mario.left_touches(trap) or mario.right_touches(trap):
@@ -324,7 +333,7 @@ def tick(keys):
         dead()
     if (position - 400) < bowser.x < (position + 400):
         if not bowser_dead:
-            fireball(bowser.x, 80)
+            fireball(bowser.x, 90)
     if bowser.top_touches(mario, 20) and (mario.speedy > 0):
         mario.y -= 100
         mario.move_to_stop_overlapping(bowser)
@@ -334,10 +343,11 @@ def tick(keys):
             bowser.y = 800
         else:
             bowser_health -= 1
-    elif mario.left_touches(bowser) or mario.right_touches(bowser) and mario.speedy <= 1:
+    elif mario.left_touches(bowser) or mario.right_touches(bowser) and mario.speedy >= 1:
         dead()
     if bowser_dead:
-        final_wall.speedy = 10
+        final_wall.speedy = 5
+        final_wall.move_speed()
     # if mario.touches(princess_peach):
 
     # this is how Mario interacts with the borders
@@ -349,6 +359,7 @@ def tick(keys):
             if mario.speedy <= 0:
                 mario.speedx *= -0.1
                 mario.move_to_stop_overlapping(border)
+                mario.speedy += 0.5
                 keys.clear()
         if not mario.bottom_touches(border, 10):
             if mario.speedy < 40:
