@@ -12,10 +12,7 @@ past_save = False
 
 # Mario
 mario = gamebox.from_color(100, 530, "red", 32, 40)
-mario.speedx = 0
 health = 15
-mario_position_x = mario.x
-mario_position_y = mario.y
 
 # Goomba
 goomba = gamebox.from_color(300, 530, "brown", 25, 35)
@@ -32,7 +29,6 @@ koopa_spinning = gamebox.from_color(koopa_x, 1000, "green", 25, 20)
 
 # Bowser
 bowser = gamebox.from_color(3400, 525, "green", 30, 40)
-bowser_x_position = 0
 bowser_velocity = 0
 bowser_health = 2
 bowser_dead = False
@@ -60,50 +56,42 @@ borders = [gamebox.from_color(400, 875, "green", 800, 650),
            gamebox.from_color(1200, 450, "brown", 150, 50),
            gamebox.from_color(1400, 350, "brown", 100, 50)]
 
-# The Wall Which Blocks Princess Peach
-final_wall = gamebox.from_color(2500, 300, "gold", 100, 6000)
-
-# This is how borders are added and removed from the game
-count = 8
-def border_func(death = False):
-    global position
-    global borders
-    global count
-    all_borders = [  # gamebox.from_color(400, 20, "black", 8000, 40),
+all_borders = [
         gamebox.from_color(400, 875, "green", 800, 650),
         gamebox.from_color(500, 450, "brown", 50, 50),
         gamebox.from_color(650, 350, "brown", 50, 50),
         gamebox.from_color(1300, 875, "green", 800, 650),
-        gamebox.from_color(850, 300, "brown", 150, 50),  #
-        gamebox.from_color(1000, 200, "brown", 50, 50),  #
-        gamebox.from_color(1200, 200, "brown", 50, 50),  #
+        gamebox.from_color(850, 300, "brown", 150, 50),
+        gamebox.from_color(1000, 200, "brown", 50, 50),
+        gamebox.from_color(1200, 200, "brown", 50, 50),
         gamebox.from_color(1200, 450, "brown", 150, 50),
         gamebox.from_color(1400, 350, "brown", 100, 50),
         gamebox.from_color(2200, 575, "green", 800, 50),
         gamebox.from_color(1600, 450, "brown", 150, 50),
         gamebox.from_color(3100, 575, "green", 800, 50),
-        gamebox.from_color(3900, 575, "green", 800, 50)
+        gamebox.from_color(3900, 575, "green", 800, 50,
+        gamebox.from_color(3500, 300, "gold", 100, 6000)
     ]
+    
+# This is how borders are added and removed from the game
+count = 8
+def border_func(death = False):
+    global borders
+    global count
     if death:
         borders = all_borders[0:9]
         death = False
         count = 8
-    for border in borders:
-        if border.x < position - 400 and count != 0 and border != all_borders[0]:
-            count += 1
-            borders.remove(border)
-            try:
-                borders.append(all_borders[count])
-            except:
-                count = 0
-                break
-    return #IDK WHETHER THIS SHOULD BE THERE
-
-    #if position > 800:
-    #    for i in range(len(borders)-2):
-    #        borders.remove(borders[i])
-    #    for i in range(3,7):
-    #        borders.append(all_borders[i])
+    else:
+        for border in borders:
+            if border.right < position - 400 and count != 0:
+                count += 1
+                borders.remove(border)
+                try:
+                    borders.append(all_borders[count])
+                except:
+                    count = 0
+                    break
 
 def fireball(source_x_position, rate):
     global timer
@@ -112,7 +100,7 @@ def fireball(source_x_position, rate):
         ball_of_fire.x = source_x_position
         ball_of_fire.y = 520
         x_distance = mario.x - source_x_position
-        y_distance = mario_position_y - 520
+        y_distance = mario.y - 520
         length = math.sqrt((x_distance**2) + (y_distance**2))
         ball_of_fire.speedx = velocity * (x_distance/length)
         ball_of_fire.speedy = velocity * (y_distance / length)
@@ -189,10 +177,7 @@ def tick(keys):
     global koopa_velocity
     global bowser_velocity
     global timer
-    global mario_position_x
-    global mario_position_y
     global bowser_health
-    global bowser_x_position
     global bowser_dead
 
     camera.clear("lightblue")
@@ -222,8 +207,6 @@ def tick(keys):
                 camera.draw(gamebox.from_text(2500, 350, "GO!", 40, "Red"))
         # Mario Movement
         if timer > 35:
-            mario_position_x = mario.x
-            mario_position_y = mario.y
             if pygame.K_UP in keys:
                 for border in borders:  # Mario can only jump up if he is not in the air already
                     if mario.bottom_touches(border):
@@ -267,7 +250,6 @@ def tick(keys):
 
         # Bowser Movement
         bowser.xspeed = bowser_velocity
-        bowser_x_position = bowser.x
         if mario.x > 2900:
             if mario.x > bowser.x:
                 bowser_velocity = 8
@@ -337,7 +319,7 @@ def tick(keys):
         dead()
     if (position - 400) < bowser.x < (position + 400):
         if not bowser_dead:
-            fireball(bowser_x_position, 80)
+            fireball(bowser.x, 80)
     if bowser.top_touches(mario, 20) and (mario.speedy > 0):
         mario.y -= 100
         mario.move_to_stop_overlapping(bowser)
