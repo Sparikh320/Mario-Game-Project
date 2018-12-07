@@ -53,6 +53,10 @@ traps = [gamebox.from_image(650, 530, "Spikes.png"),
 for trap in traps:
     trap.size = (50, 40)
 
+# Save Point
+save_point_flag = gamebox.from_image(2500, 505, "save_point_flag.png")
+save_point_flag.size = (30, 120)
+
 heart_drawing_counter = 0
 list_of_hearts = []
 while heart_drawing_counter < health:
@@ -328,7 +332,7 @@ def tick(keys):
         mario.speedy = -40
         koopa_standing.y = 1000
         koopa_down = True
-        koopa_velocity *= 1.2
+        koopa_velocity *= 1.7
         koopa_spinning.x = koopa_x
         koopa_spinning.y = 535
     elif mario.left_touches(koopa_standing) or mario.right_touches(koopa_standing) and mario.speedy <= 5:
@@ -353,7 +357,7 @@ def tick(keys):
         dead()
     if (position - 400) < bowser.x < (position + 400):
         if not bowser_dead:
-            fireball(bowser.x, 90)
+            fireball(bowser.x, 80)
     if bowser.top_touches(mario, 20) and (mario.speedy > 0):
         mario.y -= 100
         mario.move_to_stop_overlapping(bowser)
@@ -408,6 +412,7 @@ def tick(keys):
     for i in range(health):
         list_of_hearts[i].x = (position - 380 + ( i * 35))
         camera.draw(list_of_hearts[i])
+    camera.draw(save_point_flag)
     camera.display()
 
 gamebox.timer_loop(30, tick)
