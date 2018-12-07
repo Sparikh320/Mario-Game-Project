@@ -38,6 +38,9 @@ bowser_velocity = 0
 bowser_health = 3
 bowser_dead = False
 
+#Peach
+peach = gamebox.from_color(4200, 550, "pink", 25, 100)
+
 # Fire Flower
 fire_flower = gamebox.from_image(2400, 520, "Priranha_plant.png")
 fire_flower.size = (25, 60)
@@ -217,6 +220,12 @@ def tick(keys):
         camera.draw(gamebox.from_text(400, 350, "Press space to start", 40, "Red"))
     if pygame.K_SPACE in keys:
         game_on = True
+        
+    if mario.x >= 4100:
+        mario.y = 530
+        camera.draw(gamebox.from_text(4100, 100, "YOU WIN!", 50, "Red"))
+        camera.draw(gamebox.from_text(4100, 200, "You have defeated the enemies and saved Princess Peach!", 40, "Red"))
+        gamebox.pause()
 
     ## Continuously removes and adds walls
     border_func()
@@ -394,6 +403,7 @@ def tick(keys):
 
     # drawing all the objects
     camera.draw(mario)
+    camera.draw(peach)
     for border in borders:
         camera.draw(border)
     for trap in traps:
