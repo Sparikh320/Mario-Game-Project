@@ -1,4 +1,4 @@
-# Anthony Esquivel afe2xd, Sahil Parikh sp4qf
+# Anthony Esquivel afe2xd, afe2xd, Sahil Parikh sp4qf
 import pygame
 import gamebox
 import math
@@ -95,20 +95,24 @@ all_borders = [
     gamebox.from_color(1200, 450, "brown", 150, 50),
     gamebox.from_color(1400, 350, "brown", 100, 50),
     gamebox.from_color(2200, 575, "green", 800, 50),
-    gamebox.from_color(2000, 450, "brown", 100, 50),  #
-    gamebox.from_color(2200, 350, "brown", 50, 50),  #
+    gamebox.from_color(2000, 450, "brown", 100, 50),
+    gamebox.from_color(2200, 350, "brown", 50, 50),
     gamebox.from_color(3100, 575, "green", 800, 50),
-    gamebox.from_color(3000, 350, "brown", 100, 50),  #
-    gamebox.from_color(3200, 450, "brown", 100, 50),  #
+    gamebox.from_color(3000, 350, "brown", 100, 50),
+    gamebox.from_color(3200, 450, "brown", 100, 50),
     gamebox.from_color(3900, 575, "green", 800, 50),
     final_wall
 ]
 
-# This is how borders are added and removed from the game
 count = 8
 
-
 def border_func(death=False):
+    """
+    Removes and adds borders to the game to make it run faster. Removes borders off the left side of the screen and adds
+    new ones off the right side of the screen.
+    :param death: Bool that is made True when mario dies
+    :return: None
+    """
     global borders
     global count
     if death:
@@ -129,8 +133,13 @@ def border_func(death=False):
                     count = 0
                     break
 
-
 def fireball(source_x_position, rate):
+    """
+    Shoots fireballs from the given enemy position at given intervals.
+    :param source_x_position: Int x position of the enemy shooting the fireball.
+    :param rate: Int that gives the fire rate of the fireball
+    :return: None
+    """
     global timer
     velocity = 12
     if timer % rate == 0:
@@ -144,6 +153,11 @@ def fireball(source_x_position, rate):
 
 
 def dead():
+    """
+    When mario is killed, reset everything to the beginning or save point and subtract from health.
+    Displays game over if health is 0.
+    :return: None
+    """
     global health
     global past_save
     global position
@@ -167,7 +181,6 @@ def dead():
         camera.center = [400, 300]
         camera.draw(gamebox.from_text(400, 200, "Game over", 40, "Red"))
         gamebox.pause()
-
     elif past_save:
         camera.center = [2500, 300]
         mario.x = 2500
@@ -202,6 +215,11 @@ def dead():
     final_wall.speedy = 0
 
 def tick(keys):
+    """
+    The general code for the game that moves and creates everything.
+    :param keys: Keyboard input.
+    :return: None
+    """
     global game_on
     global position
     global goomba_dead
@@ -224,18 +242,20 @@ def tick(keys):
         camera.draw(gamebox.from_text(400, 100, "Mario", 50, "Red"))
         camera.draw(gamebox.from_text(400, 140, "By Anthony Esquivel(afe2xd) and Sahil Parikh(sp4qf)", 40, "Black"))
         camera.draw(gamebox.from_text(400, 200, "Use arrow keys to move and jump", 40, "Black"))
-        camera.draw(gamebox.from_text(400, 240, "Avoid enemies and traps and make it to the end", 40, "Black"))
+        camera.draw(gamebox.from_text(400, 240, "Avoid enemies and traps and save Princess Peach to win", 40, "Black"))
+        camera.draw(gamebox.from_text(400, 280, "Kill enemies by jumping on them", 40, "Black"))
         camera.draw(gamebox.from_text(400, 350, "Press space to start", 40, "Red"))
     if pygame.K_SPACE in keys:
         game_on = True
 
+    # End of game
     if mario.x >= 4100:
         mario.y = 530
         camera.draw(gamebox.from_text(4100, 100, "YOU WIN!", 50, "Red"))
         camera.draw(gamebox.from_text(4100, 200, "You have defeated the enemies and saved Princess Peach!", 40, "Red"))
         gamebox.pause()
 
-    ## Continuously removes and adds walls
+    # Continuously removes and adds walls
     border_func()
 
     ## OBJECT MOVEMENT
@@ -251,6 +271,7 @@ def tick(keys):
                 camera.draw(gamebox.from_text(400, 250, "GO!", 60, "Red"))
             else:
                 camera.draw(gamebox.from_text(2500, 250, "GO!", 60, "Red"))
+
         # Mario Movement
         if timer > 35:
             if pygame.K_UP in keys:
@@ -314,10 +335,9 @@ def tick(keys):
         if bowser_dead:
             final_wall.speedy = -10
 
-    ## SAVE POINT
-    if mario.x > 2500:  # Arbitrary x value needs to be changed
+    # Save point
+    if mario.x > 2500:
         past_save = True
-    # Insert counter here to stop from iterating every tick?
 
     # Screen Movement
     if mario.x > position:
@@ -332,10 +352,11 @@ def tick(keys):
     if mario.x < position - 400:
         mario.x = position - 400
 
-    # Mario interacts with enemies and dies
-    # BUG: the enemies do not re appear after mario revives and they still kill mario after they are dead
+    ## HOW MARIO INTERACTS WITH EMEMIES AND TRAPS
     if mario.y > 800:
         dead()
+
+    # Goomba
     if goomba.top_touches(mario, 18) and mario.speedy > 0:
         mario.move_to_stop_overlapping(goomba)
         mario.speedy = -40
@@ -343,6 +364,8 @@ def tick(keys):
         goomba_dead = True
     elif (mario.left_touches(goomba, 2) or mario.right_touches(goomba, 2)) and (mario.speedy <= 5):
         dead()
+
+    # Koopa
     if koopa_standing.top_touches(mario, 20) and (mario.speedy > 0):
         mario.y -= 20
         mario.move_to_stop_overlapping(koopa_standing)
@@ -362,9 +385,13 @@ def tick(keys):
         koopa_dead = True
     elif mario.left_touches(koopa_spinning) or mario.right_touches(koopa_spinning) and mario.speedy <= 5:
         dead()
+
+    # Traps
     for trap in traps:
         if mario.left_touches(trap) or mario.right_touches(trap):
             dead()
+
+    # Fireball and fire flower
     if mario.touches(fire_flower):
         dead()
     if (position - 400) < fire_flower.x < (position + 400):
@@ -372,6 +399,8 @@ def tick(keys):
             fireball(fire_flower.x, 50)
     if mario.touches(ball_of_fire):
         dead()
+
+    # Bowser
     if (position - 400) < bowser.x < (position + 400):
         if not bowser_dead:
             fireball(bowser.x, 80)
@@ -389,9 +418,8 @@ def tick(keys):
     if bowser_dead:
         final_wall.speedy = 5
         final_wall.move_speed()
-    # if mario.touches(princess_peach):
 
-    # this is how Mario interacts with the borders
+    # How Mario interacts with the borders
     for border in borders:
         if mario.top_touches(border):
             mario.speedy = 0.5
@@ -409,7 +437,7 @@ def tick(keys):
             mario.speedy = 0.2
             mario.move_to_stop_overlapping(border)
 
-    # drawing all the objects
+    # Drawing all the objects
     camera.draw(mario)
     camera.draw(peach)
     for border in borders:
@@ -432,6 +460,5 @@ def tick(keys):
         camera.draw(list_of_hearts[i])
     camera.draw(save_point_flag)
     camera.display()
-
 
 gamebox.timer_loop(30, tick)
