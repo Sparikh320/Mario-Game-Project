@@ -47,6 +47,20 @@ while heart_drawing_counter < health:
     heart_drawing_counter += 1
 
 # Borders
+borders = [gamebox.from_color(400, 575, "green", 800, 50),
+        gamebox.from_color(500, 450, "brown", 50, 50),
+        gamebox.from_color(650, 350, "brown", 50, 50),
+        gamebox.from_color(1300, 575, "green", 800, 50),
+        gamebox.from_color(850, 300, "brown", 150, 50),
+        gamebox.from_color(1000, 200, "brown", 50, 50),
+        gamebox.from_color(1200, 200, "brown", 50, 50),
+        gamebox.from_color(1200, 450, "brown", 150, 50),
+        gamebox.from_color(1400, 350, "brown", 100, 50),
+        gamebox.from_color(2200, 575, "green", 800, 50)
+           ]
+
+final_wall = gamebox.from_color(3500, 300, "gold", 30, 600)
+
 all_borders = [
         gamebox.from_color(400, 575, "green", 800, 50),
         gamebox.from_color(500, 450, "brown", 50, 50),
@@ -63,24 +77,6 @@ all_borders = [
         gamebox.from_color(3100, 575, "green", 800, 50),
         gamebox.from_color(3000, 350, "brown", 100, 50),#
         gamebox.from_color(3200, 450, "brown", 100, 50),#
-        gamebox.from_color(3900, 575, "green", 800, 50),
-        final_wall
-    ]
-
-final_wall = gamebox.from_color(3500, 300, "gold", 30, 600)
-
-all_borders = [
-        gamebox.from_color(400, 575, "green", 800, 50),
-        gamebox.from_color(500, 450, "brown", 50, 50),
-        gamebox.from_color(650, 350, "brown", 50, 50),
-        gamebox.from_color(1300, 575, "green", 800, 50),
-        gamebox.from_color(850, 300, "brown", 150, 50),
-        gamebox.from_color(1000, 200, "brown", 50, 50),
-        gamebox.from_color(1200, 200, "brown", 50, 50),
-        gamebox.from_color(1200, 450, "brown", 150, 50),
-        gamebox.from_color(1400, 350, "brown", 100, 50),
-        gamebox.from_color(2200, 575, "green", 800, 50),
-        gamebox.from_color(3100, 575, "green", 800, 50),
         gamebox.from_color(3900, 575, "green", 800, 50),
         final_wall
     ]
