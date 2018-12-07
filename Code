@@ -72,7 +72,11 @@ all_borders = [
         gamebox.from_color(1200, 450, "brown", 150, 50),
         gamebox.from_color(1400, 350, "brown", 100, 50),
         gamebox.from_color(2200, 575, "green", 800, 50),
+        gamebox.from_color(2000, 450, "brown", 100, 50),#
+        gamebox.from_color(2200, 350, "brown", 50, 50),#
         gamebox.from_color(3100, 575, "green", 800, 50),
+        gamebox.from_color(3000, 350, "brown", 100, 50),#
+        gamebox.from_color(3200, 450, "brown", 100, 50),#
         gamebox.from_color(3900, 575, "green", 800, 50),
         final_wall
     ]
