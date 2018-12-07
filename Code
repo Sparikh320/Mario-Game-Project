@@ -39,7 +39,7 @@ bowser_health = 3
 bowser_dead = False
 
 # Peach
-peach = gamebox.from_image(4200, 550, "Princess_Peach.png")
+peach = gamebox.from_image(3900, 550, "Princess_Peach.png")
 peach.size = (25, 100)
 
 # Fire Flower
@@ -175,6 +175,7 @@ def dead():
     global bowser_health
     global timer
     global bowser_dead
+    global mario_direction
     timer = 0  # This resets the global timer, to make sure Mario waits a second before moving again
 
     border_func(True)
@@ -195,6 +196,10 @@ def dead():
         mario.y = 100
         mario.xspeed = 0
         mario.yspeed = 0
+        
+    if mario_direction == 'left':
+        mario.flip()
+        mario_direction = "right"
 
     position = 400
     goomba_dead = False
@@ -242,6 +247,7 @@ def tick(keys):
     global concat_timer
     global bowser_health
     global bowser_dead
+    global mario_direction
 
     ## INTRODUCTION
     camera.clear("lightblue")
@@ -256,11 +262,11 @@ def tick(keys):
         game_on = True
 
     # End of game
-    if mario.x >= 4100:
+    if mario.x >= 3800:
         mario.y = 530
-        camera.draw(gamebox.from_text(4100, 100, "YOU WIN!", 50, "Red"))
-        camera.draw(gamebox.from_text(4100, 200, "You have defeated the enemies and saved Princess Peach!", 40, "Red"))
-        camera.draw(gamebox.from_text(4100, 300, "Score: " + concat_timer, 50, "Red"))
+        camera.draw(gamebox.from_text(3800, 100, "YOU WIN!", 50, "Red"))
+        camera.draw(gamebox.from_text(3800, 200, "You have defeated the enemies and saved Princess Peach!", 40, "Red"))
+        camera.draw(gamebox.from_text(3800, 300, "Score: " + concat_timer, 50, "Red"))
         gamebox.pause()
 
     # Continuously removes and adds walls
@@ -300,9 +306,15 @@ def tick(keys):
                     if mario.bottom_touches(border):
                         mario.speedy = -40
             if pygame.K_RIGHT in keys:
-                mario.x += 10
+                mario.x += 10                
+                if mario_direction == 'left':
+                    mario.flip()
+                    mario_direction = "right"
             if pygame.K_LEFT in keys:
                 mario.x += -10
+                if mario_direction == 'right':
+                    mario.flip()
+                    mario_direction = "left"
             mario.move_speed()
 
         # Goomba Movement
@@ -481,6 +493,7 @@ def tick(keys):
         list_of_hearts[i].x = (position - 380 + (i * 35))
         camera.draw(list_of_hearts[i])
     camera.draw(save_point_flag)
+    camera.draw(gamebox.from_text(2900, 250, "Jump On Bowser 3 Times!", 60, "Red"))
     camera.display()
 
 gamebox.timer_loop(30, tick)
