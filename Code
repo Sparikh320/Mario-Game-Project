@@ -14,6 +14,7 @@ past_save = False
 mario = gamebox.from_image(100, 530, "mario.png")
 mario.size = (32, 40)
 health = 10
+mario_direction = "right"
 
 # Goomba
 goomba = gamebox.from_image(300, 530, "Goomba.png")
@@ -30,6 +31,7 @@ koopa_standing = gamebox.from_image(koopa_x, 530, "Koopa.png")
 koopa_standing.size = (25, 40)
 koopa_spinning = gamebox.from_image(koopa_x, 1000, "koopa_shell.png")
 koopa_spinning.size = (25, 20)
+koopa_direction = "left"
 
 # Bowser
 bowser = gamebox.from_image(3400, 525, "Bowser.png")
@@ -37,6 +39,7 @@ bowser.size = (35, 45)
 bowser_velocity = 0
 bowser_health = 3
 bowser_dead = False
+bowser_direction = "left"
 
 # Peach
 peach = gamebox.from_image(3900, 550, "Princess_Peach.png")
@@ -109,6 +112,7 @@ all_borders = [
 
 count = 8
 
+
 def border_func(death=False):
     """
     Removes and adds borders to the game to make it run faster. Removes borders off the left side of the screen and adds
@@ -135,6 +139,7 @@ def border_func(death=False):
                 except:
                     count = 0
                     break
+
 
 def fireball(source_x_position, rate):
     """
@@ -176,6 +181,8 @@ def dead():
     global timer
     global bowser_dead
     global mario_direction
+    global koopa_direction
+    global bowser_direction
     timer = 0  # This resets the global timer, to make sure Mario waits a second before moving again
 
     border_func(True)
@@ -196,7 +203,7 @@ def dead():
         mario.y = 100
         mario.xspeed = 0
         mario.yspeed = 0
-        
+
     if mario_direction == 'left':
         mario.flip()
         mario_direction = "right"
@@ -213,15 +220,22 @@ def dead():
     koopa_standing.y = 530
     koopa_spinning.y = 1000
     koopa_velocity = 7
+    if koopa_direction == 'right':
+        mario.flip()
+        koopa_direction = "left"
 
     bowser_dead = False
     bowser.x = 3400
     bowser.y = 525
     bowser_health = 3
     bowser_velocity = 0
+    if bowser_direction == 'right':
+        mario.flip()
+        bowser_direction = "left"
 
     final_wall.y = 300
     final_wall.speedy = 0
+
 
 def tick(keys):
     """
@@ -248,6 +262,8 @@ def tick(keys):
     global bowser_health
     global bowser_dead
     global mario_direction
+    global koopa_direction
+    global bowser_direction
 
     ## INTRODUCTION
     camera.clear("lightblue")
@@ -284,11 +300,11 @@ def tick(keys):
 
         timer += 1
         if timer < 40:
-            if not past_save:
+            if not past_save and health > 1:
                 camera.draw(gamebox.from_text(400, 250, "Wait...", 60, "Red"))
             else:
                 camera.draw(gamebox.from_text(2500, 250, "Wait...", 60, "Red"))
-        elif 40 < timer < 75:
+        elif 40 < timer < 75 and health > 1:
             if not past_save:
                 camera.draw(gamebox.from_text(400, 250, "GO!", 60, "Red"))
             else:
@@ -306,7 +322,7 @@ def tick(keys):
                     if mario.bottom_touches(border):
                         mario.speedy = -40
             if pygame.K_RIGHT in keys:
-                mario.x += 10                
+                mario.x += 10
                 if mario_direction == 'left':
                     mario.flip()
                     mario_direction = "right"
@@ -336,6 +352,12 @@ def tick(keys):
         if koopa_standing.x < 1200:
             koopa_standing.x += 15
             koopa_velocity *= -1
+        if koopa_direction == "left" and koopa_standing.speedx > 0:
+            koopa_standing.flip()
+            koopa_direction = "right"
+        if koopa_direction == "right" and koopa_standing.speedx < 0:
+            koopa_standing.flip()
+            koopa_direction = "left"
         koopa_standing.move_speed()
 
         # Koopa Spinning Movement
@@ -355,6 +377,14 @@ def tick(keys):
                 bowser.speedx = 7
             elif mario.x < bowser.x:
                 bowser.speedx = -7
+            if bowser_direction == "left" and bowser.speedx > 0:
+                bowser.flip()
+                bowser_direction = "right"
+            if bowser_direction == "right" and bowser.speedx < 0:
+                bowser.flip()
+                bowser_direction = "left"
+            koopa_standing.move_speed()
+
             bowser.move_speed()
 
         # Fireballs resetting after going off screen
@@ -495,5 +525,6 @@ def tick(keys):
     camera.draw(save_point_flag)
     camera.draw(gamebox.from_text(2900, 250, "Jump On Bowser 3 Times!", 60, "Red"))
     camera.display()
+
 
 gamebox.timer_loop(30, tick)
