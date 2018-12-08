@@ -1,4 +1,11 @@
 # Anthony Esquivel afe2xd, Sahil Parikh sp4qf
+# Features of this game include:
+#   Multiple enemies some of which move and shoot
+#   Side-scrolling level
+#   Timer that works as the final score if you win
+#   Health meter that gives you ten lives
+#   Save point that allows you to respawn there
+#   Floating blocks that you can land on
 import pygame
 import gamebox
 import math
@@ -112,7 +119,6 @@ all_borders = [
 
 count = 8
 
-
 def border_func(death=False):
     """
     Removes and adds borders to the game to make it run faster. Removes borders off the left side of the screen and adds
@@ -181,8 +187,6 @@ def dead():
     global timer
     global bowser_dead
     global mario_direction
-    global koopa_direction
-    global bowser_direction
     timer = 0  # This resets the global timer, to make sure Mario waits a second before moving again
 
     border_func(True)
@@ -197,6 +201,7 @@ def dead():
         camera.center = [2500, 300]
         mario.x = 2500
         mario.y = 100
+
     else:
         camera.center = [400, 300]
         mario.x = 100
@@ -206,7 +211,7 @@ def dead():
 
     if mario_direction == 'left':
         mario.flip()
-        mario_direction = "right"
+        mario_direction = 'right'
 
     position = 400
     goomba_dead = False
@@ -220,18 +225,12 @@ def dead():
     koopa_standing.y = 530
     koopa_spinning.y = 1000
     koopa_velocity = 7
-    if koopa_direction == 'right':
-        mario.flip()
-        koopa_direction = "left"
 
     bowser_dead = False
     bowser.x = 3400
     bowser.y = 525
     bowser_health = 3
     bowser_velocity = 0
-    if bowser_direction == 'right':
-        mario.flip()
-        bowser_direction = "left"
 
     final_wall.y = 300
     final_wall.speedy = 0
@@ -325,12 +324,12 @@ def tick(keys):
                 mario.x += 10
                 if mario_direction == 'left':
                     mario.flip()
-                    mario_direction = "right"
+                    mario_direction = 'right'
             if pygame.K_LEFT in keys:
                 mario.x += -10
                 if mario_direction == 'right':
                     mario.flip()
-                    mario_direction = "left"
+                    mario_direction = 'left'
             mario.move_speed()
 
         # Goomba Movement
@@ -352,12 +351,12 @@ def tick(keys):
         if koopa_standing.x < 1200:
             koopa_standing.x += 15
             koopa_velocity *= -1
-        if koopa_direction == "left" and koopa_standing.speedx > 0:
-            koopa_standing.flip()
-            koopa_direction = "right"
-        if koopa_direction == "right" and koopa_standing.speedx < 0:
+        if koopa_direction == "right" and koopa_standing.speedx > 0:
             koopa_standing.flip()
             koopa_direction = "left"
+        if koopa_direction == "left" and koopa_standing.speedx < 0:
+            koopa_standing.flip()
+            koopa_direction = "right"
         koopa_standing.move_speed()
 
         # Koopa Spinning Movement
